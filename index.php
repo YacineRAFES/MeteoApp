@@ -6,7 +6,7 @@
     <!-- CDN Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- CDN Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/style/bootstrap.min.css">
     <title>OpenWeatherApp</title>
     <link rel="stylesheet" href="./assets/style/style.css">
     <script src="https://static.meteoblue.com/cdn/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
@@ -23,28 +23,12 @@
                 votre navigateur ne supporte pas la lecture de vidéos.
             </video>
             <div class="card-img-overlay d-flex justify-content-center align-items-center">
-                <h1 class="card-title fw-bold text-center my-auto">WeatherApp</h1>
+                <h1 class="card-title fw-bold text-center my-auto">MeteoApp</h1>
             </div>
         </div>
     </div>
     <div class="container-fluid">
-        <div class="row">
-            <?php 
-            for($i = 0; $i <5; $i++){
-                echo 
-                '<div class="col">
-                    <div class="my-2 p-0">
-                        <div class="card border-0  shadow-lg rounded-4">
-                            <div class="col-3 p-0"><img src="http://openweathermap.org/img/wn/03d@2x.png"  alt="Image du condition de météo"></div>
-                            New York dsfdsdqsdq
-                        </div>
-                    </div>
-                </div>';
-            }
-            ?>
-            
-           
-        </div>
+        <div class="row px-2" id="villePrincipale"></div>
         
     </div>
     <div class="container mt-4">
