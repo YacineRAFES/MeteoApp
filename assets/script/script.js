@@ -133,7 +133,6 @@ function convertionUnixEnDate(unixdate){
 async function villesMondeEntierMeteo() {
     const villes = ['Paris', 'New York', 'Tokyo', 'Quebec', 'Londres', 'Berlin', 'Amsterdam'];
     const output = document.getElementById('villePrincipale');
-    output.innerHTML = '<div class="row"></div>';
 
     for (let i = 0; i < villes.length; i++) {
         try {
@@ -156,16 +155,16 @@ async function villesMondeEntierMeteo() {
             // Afficher uniquement la météo actuelle (par exemple, index 0)
             const meteo = await getImageWMOCODE(wmoCodes[0]);
 
-            document.querySelector('.row').innerHTML += `
-                <div class="col my-2 p-0">
-                    <div class="card p-2 ps-3 border-0 shadow-lg rounded-4">
+            output.innerHTML += `
+                <div class="col my-2 p-0 mx-1">
+                    <div class="card p-2 ps-3 border-0 rounded-4">
                         <div class="fs-5">${name} (${country})</div>
                         <div class="row">
                             <div class="col-4">
                                 <img src="${meteo.image}" alt="Condition météo" />
                             </div>
                             <div class="col-8">
-                                <div class="fs-1">${temperatures[0]}°C</div>
+                                <div class="fs-1">${Math.round(temperatures[0])}°C</div>
                                 <div class="fs-6">${meteo.description}</div>
                             </div>
                         </div>
@@ -174,7 +173,7 @@ async function villesMondeEntierMeteo() {
             `;
         } catch (error) {
             console.error(`Erreur lors de la récupération des données pour ${villes[i]}:`, error);
-            document.querySelector('.row').innerHTML += `
+            output.innerHTML += `
                 <div class="col my-2 p-0">
                     <div class="card p-2 ps-3 border-0 shadow-lg rounded-4 bg-danger text-white">
                         <div class="fs-5">${villes[i]}</div>
