@@ -37,16 +37,16 @@ async function meteo(){
     for(let i = 0; i < taille; i++){
         const imageurl = await getImageWMOCODE(wmoCode[i]);
         output.innerHTML+=
-        '<div class="col-2">'+
+            '<div class="col-2">'+
             '<div class="card text-center border-0">'+
-                '<div class="card-body">'+
-                    '<h3 class="card-title text-center">'+ convertionUnixEnHeure(unix[i])+'</h3>'+
-                    '<img src="'+ imageurl.image +'" class="card-img-top" alt="card-image">'+
-                    '<p class="card-text text-center fw-bold fs-4">'+ Math.round(temperature[i]) +'°C</p>'+
-                    '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ precipitation[i]+'%</p>'+
-                '</div>'+
+            '<div class="card-body">'+
+            '<h3 class="card-title text-center">'+ convertionUnixEnHeure(unix[i])+'</h3>'+
+            '<img src="'+ imageurl.image +'" class="card-img-top" alt="card-image">'+
+            '<p class="card-text text-center fw-bold fs-4">'+ Math.round(temperature[i]) +'°C</p>'+
+            '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ precipitation[i]+'%</p>'+
             '</div>'+
-        '</div>';
+            '</div>'+
+            '</div>';
     }
     output.classList.remove("blocParDefaut");
     output.classList.remove("bg-light");
@@ -65,16 +65,16 @@ async function meteo(){
     for(let i = 0; i < taille2; i++){
         const imageUrlHebdo = await getImageWMOCODE(wmoCodeHebdo[i]);
         output2.innerHTML +=
-        '<div class="my-2 p-0">'+
+            '<div class="my-2 p-0">'+
             '<div class="card border-0  shadow-lg rounded-4">'+
-                '<div class="card-body p-0 row text-center d-flex align-items-center">'+
-                    '<div class="col-3 p-0"><h3>'+convertionUnixEnDate(unix2[i])+'</h3></div>'+
-                    '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+ precipitationHebdoMax[i]+'%</div>'+
-                    '<div class="col-3 p-0"><img src="'+ imageUrlHebdo.image +'"  alt="Image du condition de météo"></div>'+
-                    '<div class="col-3 p-0 fw-bold fs-4">'+Math.round(temperatureHebdoMin[i])+'° / '+Math.round(temperatureHebdoMax[i])+'°</div>'+
-                '</div>'+
+            '<div class="card-body p-0 row text-center d-flex align-items-center">'+
+            '<div class="col-3 p-0"><h3>'+convertionUnixEnDate(unix2[i])+'</h3></div>'+
+            '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+ precipitationHebdoMax[i]+'%</div>'+
+            '<div class="col-3 p-0"><img src="'+ imageUrlHebdo.image +'"  alt="Image du condition de météo"></div>'+
+            '<div class="col-3 p-0 fw-bold fs-4">'+Math.round(temperatureHebdoMin[i])+'° / '+Math.round(temperatureHebdoMax[i])+'°</div>'+
             '</div>'+
-        '</div>';
+            '</div>'+
+            '</div>';
 
     }
     output2.classList.remove("blocParDefaut");
@@ -103,11 +103,14 @@ function convertionUnixEnHeure(unixtime){
 
 async function getImageWMOCODE(wmoCode){
     let wmocode = wmoCode;
-    const response = await fetch('https://gist.githubusercontent.com/stellasphere/9490c195ed2b53c707087c8c2db4ec0c/raw/76b0cb0ef0bfd8a2ec988aa54e30ecd1b483495d/descriptions.json');
-    const json = await response.json();
-    const imageurl = json[wmocode].day;
+    const response = await fetch('./assets/images/weather_code.json');
 
-    return imageurl;
+    const json = await response.json();
+
+    const imageurl = json[wmocode].day.image;
+    const description = json[wmocode].day.description;
+
+    return {image: imageurl, desc: description};
 }
 
 function convertionUnixEnDate(unixdate){
@@ -132,56 +135,56 @@ function convertionUnixEnDate(unixdate){
 
 async function villesMondeEntierMeteo() {
     const villes = ['Paris', 'New York', 'Tokyo', 'Quebec', 'Londres', 'Berlin', 'Amsterdam'];
-    const output = document.getElementById('villePrincipale');
+    let output = '';
 
-    for (let i = 0; i < villes.length; i++) {
-        try {
-            // Fetch the geolocation of the city
-            const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${villes[i]}&count=1&language=fr&format=json`);
-            const json = await response.json();
-            const data = json.results[0];
-            const lat = data.latitude;
-            const lon = data.longitude;
-            const name = data.name;
-            const country = data.country_code;
+    const promesses = villes.map(ville => {
+        return fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${ville}&count=1&language=fr&format=json`)
+            .then(response => response.json())
+            .then(json => {
+                const { latitude, longitude, country_code: country, name } = json.results[0];
+                return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`)
+                    .then(response2 => response2.json()) // Récupération des données météo{
+                    .then(async json2 => {
+                        const {temperature: temperature_2m, weathercode} = json2.current_weather;
+                        const meteo = await getImageWMOCODE(weathercode);
+                        console.log(meteo.image);
 
-            // Fetch the weather forecast
-            const response2 = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weather_code&timeformat=unixtime&temporal_resolution=native&forecast_hours=16`);
-            const json2 = await response2.json();
-
-            const temperatures = json2.hourly.temperature_2m;
-            const wmoCodes = json2.hourly.weather_code;
-
-            // Afficher uniquement la météo actuelle (par exemple, index 0)
-            const meteo = await getImageWMOCODE(wmoCodes[0]);
-
-            output.innerHTML += `
-                <div class="col my-2 p-0 mx-1">
-                    <div class="card p-2 ps-3 border-0 rounded-4">
-                        <div class="fs-5">${name} (${country})</div>
-                        <div class="row">
-                            <div class="col-4">
-                                <img src="${meteo.image}" alt="Condition météo" />
+                        output += `
+                            <div class="col my-2 p-0 mx-1">
+                                <div class="card p-2 ps-3 border-0 rounded-4">
+                                    <div class="fs-5">${name} (${country})</div>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <img src="${meteo.image}" alt="Condition météo" />
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="fs-1">${Math.round(temperature_2m)}°C</div>
+                                            <div class="fs-6">${meteo.desc}</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-8">
-                                <div class="fs-1">${Math.round(temperatures[0])}°C</div>
-                                <div class="fs-6">${meteo.description}</div>
+                        `;
+                    })
+                    .catch(error => {
+                        console.error(`Erreur lors de la récupération des données pour ${ville}:`, error);
+                        output += `
+                            <div class="col my-2 p-0">
+                                <div class="card p-2 ps-3 border-0 shadow-lg rounded-4 bg-danger text-white">
+                                    <div class="fs-5">${ville}</div>
+                                    <div class="fs-6">Erreur de récupération des données.</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } catch (error) {
-            console.error(`Erreur lors de la récupération des données pour ${villes[i]}:`, error);
-            output.innerHTML += `
-                <div class="col my-2 p-0">
-                    <div class="card p-2 ps-3 border-0 shadow-lg rounded-4 bg-danger text-white">
-                        <div class="fs-5">${villes[i]}</div>
-                        <div class="fs-6">Erreur de récupération des données.</div>
-                    </div>
-                </div>
-            `;
-        }
-    }
+                        `;
+                    });
+            });
+    });
+    Promise.all(promesses)
+        .then(() => {
+            // Mise à jour du contenu HTML une fois toutes les requêtes terminées
+            document.getElementById('villePrincipale').innerHTML = output;
+        })
+        .catch(error => {
+            console.error('Une erreur globale s’est produite :', error);
+        });
 }
-
