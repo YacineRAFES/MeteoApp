@@ -1,3 +1,6 @@
+import { ville } from './rechercheVille.js';
+import { getHourlyWeather} from "./APImeteo";
+
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
     villesMondeEntierMeteo();
@@ -12,20 +15,9 @@ async function meteo(){
     actuel.innerHTML = '';
 
     const nameCity = document.getElementById('ville').value;
-    //fetch  the location of city
-    const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${nameCity}&count=1&language=fr&format=json`);
-    const json = await response.json();
-    console.log(json);
-    const data = json.results[0];
-    const lat = data.latitude;
-    const lon = data.longitude;
-    const name = data.name;
-    const country = data.country_code;
-    console.log(lat, lon);
+    const dataVille = await ville(nameCity);
 
-
-
-    const response2 = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weather_code&timeformat=unixtime&temporal_resolution=native&forecast_hours=16`);
+    const response2 = await getHourlyWeather(dataVille.lat, dataVille.lon);
     const json2 = await response2.json();
     const taille = json2.hourly.time.length;
     console.log(taille);
