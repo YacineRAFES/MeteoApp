@@ -9,6 +9,7 @@ export function getCurrentWeather(lat, lon) {
                     wind_speed: json.current_weather.windspeed,
                     is_day: json.current_weather.is_day,
                     wmoCode: json.current_weather.weathercode
+                    
                 });
             })
             .catch(error => reject(error));
@@ -17,7 +18,7 @@ export function getCurrentWeather(lat, lon) {
 
 export function getWeekWeather(lat,lon) {
     return new Promise((resolve, reject) => {
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`)
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timeformat=unixtime`)
             .then(response => response.json())
             .then(json => {
                 resolve({

@@ -1,11 +1,14 @@
 import { ville } from './rechercheVille.js';
-import { getHourlyWeather} from "./APImeteo";
+import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./APImeteo.js";
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
     villesMondeEntierMeteo();
 });
 
+/*
+    Fonction qui récupère les données météo de la ville saisie par l'utilisateur
+*/
 async function meteo(){
     const output = document.getElementById('output');
     const output2 = document.getElementById('output2');
@@ -16,26 +19,18 @@ async function meteo(){
 
     const nameCity = document.getElementById('ville').value;
     const dataVille = await ville(nameCity);
+    const dataHour = await getHourlyWeather(dataVille.lat, dataVille.lon);
 
-    const response2 = await getHourlyWeather(dataVille.lat, dataVille.lon);
-    const json2 = await response2.json();
-    const taille = json2.hourly.time.length;
-    console.log(taille);
-    const unix = json2.hourly.time;
-    const temperature = json2.hourly.temperature_2m;
-    const precipitation = json2.hourly.precipitation_probability;
-    const wmoCode = json2.hourly.weather_code;
-
-    for(let i = 0; i < taille; i++){
-        const imageurl = await getImageWMOCODE(wmoCode[i]);
+    for(let i = 0; i < dataHour.wmoCode.length; i++){
+        const imageurl = await getImageWMOCODE(dataHour.wmoCode[i]);
         output.innerHTML+=
             '<div class="col-2">'+
             '<div class="card text-center border-0">'+
             '<div class="card-body">'+
-            '<h3 class="card-title text-center">'+ convertionUnixEnHeure(unix[i])+'</h3>'+
+            '<h3 class="card-title text-center">'+ convertionUnixEnHeure(dataHour.time[i])+'</h3>'+
             '<img src="'+ imageurl.image +'" class="card-img-top" alt="card-image">'+
-            '<p class="card-text text-center fw-bold fs-4">'+ Math.round(temperature[i]) +'°C</p>'+
-            '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ precipitation[i]+'%</p>'+
+            '<p class="card-text text-center fw-bold fs-4">'+ Math.round(dataHour.temperature[i]) +'°C</p>'+
+            '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ dataHour.precipitation[i]+'%</p>'+
             '</div>'+
             '</div>'+
             '</div>';
@@ -44,26 +39,18 @@ async function meteo(){
     output.classList.remove("bg-light");
     output.classList.add("bg-white");
 
-    const responseHebdo = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timeformat=unixtime&timezone=Europe%2FLondon`);
-    const json3 = await responseHebdo.json();
-    console.log(json3);
-    const taille2 = json3.daily.time.length;
-    const unix2 = json3.daily.time;
-    const temperatureHebdoMax = json3.daily.temperature_2m_max;
-    const temperatureHebdoMin = json3.daily.temperature_2m_min;
-    const precipitationHebdoMax = json3.daily.precipitation_probability_max;
-    const wmoCodeHebdo = json3.daily.weather_code;
+    const dataWeekly = await getWeekWeather(dataVille.lat, dataVille.lon);
 
-    for(let i = 0; i < taille2; i++){
-        const imageUrlHebdo = await getImageWMOCODE(wmoCodeHebdo[i]);
+    for(let i = 0; i < dataWeekly.wmoCode.length; i++){
+        const imageUrlHebdo = await getImageWMOCODE(dataWeekly.wmoCode[i]);
         output2.innerHTML +=
             '<div class="my-2 p-0">'+
             '<div class="card border-0  shadow-lg rounded-4">'+
             '<div class="card-body p-0 row text-center d-flex align-items-center">'+
-            '<div class="col-3 p-0"><h3>'+convertionUnixEnDate(unix2[i])+'</h3></div>'+
-            '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+ precipitationHebdoMax[i]+'%</div>'+
+            '<div class="col-3 p-0"><h3>'+convertionUnixEnDate(dataWeekly.day[i])+'</h3></div>'+
+            '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+ dataWeekly.precipitation_max[i]+'%</div>'+
             '<div class="col-3 p-0"><img src="'+ imageUrlHebdo.image +'"  alt="Image du condition de météo"></div>'+
-            '<div class="col-3 p-0 fw-bold fs-4">'+Math.round(temperatureHebdoMin[i])+'° / '+Math.round(temperatureHebdoMax[i])+'°</div>'+
+            '<div class="col-3 p-0 fw-bold fs-4">'+Math.round(dataWeekly.temperature_min[i])+'° / '+Math.round(dataWeekly.temperature_max[i])+'°</div>'+
             '</div>'+
             '</div>'+
             '</div>';
@@ -75,24 +62,26 @@ async function meteo(){
 
 };
 
+/*
+    Fonction qui convertit le temps Unix en heure
+*/
 function convertionUnixEnHeure(unixtime){
     let unix = unixtime;
-    // Create a new JavaScript Date object based on the timestamp
-    // multiplied by 1000 so that the argument is in milliseconds, not seconds
+
     var date = new Date(unix * 1000);
 
-    // Hours part from the timestamp
     var hours = date.getHours();
 
-    // Minutes part from the timestamp
     var minutes = "0" + date.getMinutes();
 
-    // Will display time in 10:30:23 format
     var formattedTime = hours + ':' + minutes.substring(-2);
 
     return formattedTime;
 }
 
+/*
+    Fonction qui récupère l'image et la description de la météo
+*/
 async function getImageWMOCODE(wmoCode){
     let wmocode = wmoCode;
     const response = await fetch('./assets/images/weather_code.json');
@@ -105,11 +94,19 @@ async function getImageWMOCODE(wmoCode){
     return {image: imageurl, desc: description};
 }
 
+/*
+    Fonction qui convertit le temps Unix en date
+*/
 function convertionUnixEnDate(unixdate){
     const jourAujourd = new Date().toLocaleString('FR-fr', {  weekday: 'long' });
 
     let unix = unixdate;
     var date = new Date(unix*1000);
+
+    if (isNaN(date.getTime())) {
+        console.error("Date non valide :", date);
+        return "Date non valide";
+    }
 
     const getJour =  new Intl.DateTimeFormat("fr-FR", {weekday: "long"}).format(date);
 
@@ -124,53 +121,48 @@ function convertionUnixEnDate(unixdate){
     return jourSemaine;
 }
 
-
+/* 
+    Fonction qui récupère les données météo de plusieurs villes du monde entier
+*/
 async function villesMondeEntierMeteo() {
     const villes = ['Paris', 'New York', 'Tokyo', 'Quebec', 'Londres', 'Berlin', 'Amsterdam'];
     let output = '';
 
-    const promesses = villes.map(ville => {
-        return fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${ville}&count=1&language=fr&format=json`)
-            .then(response => response.json())
-            .then(json => {
-                const { latitude, longitude, country_code: country, name } = json.results[0];
-                return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`)
-                    .then(response2 => response2.json()) // Récupération des données météo{
-                    .then(async json2 => {
-                        const {temperature: temperature_2m, weathercode} = json2.current_weather;
-                        const meteo = await getImageWMOCODE(weathercode);
-                        console.log(meteo.image);
-
-                        output += `
-                            <div class="col my-2 p-0 mx-1">
-                                <div class="card p-2 ps-3 border-0 rounded-4">
-                                    <div class="fs-5">${name} (${country})</div>
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <img src="${meteo.image}" alt="Condition météo" />
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="fs-1">${Math.round(temperature_2m)}°C</div>
-                                            <div class="fs-6">${meteo.desc}</div>
-                                        </div>
-                                    </div>
-                                </div>
+    const promesses = villes.map(async villeName => {
+        try {
+            const dataVille = await ville(villeName);
+            const {lat, lon, country, name} = dataVille;
+            const dataWeather = await getCurrentWeather(lat, lon);
+            const {temperature, wmoCode} = dataWeather; // Extraction de weathercode
+            const meteo = await getImageWMOCODE(wmoCode);
+            output += `
+                <div class="col my-2 p-0 mx-1">
+                    <div class="card p-2 ps-3 border-0 rounded-4">
+                        <div class="fs-5">${name} (${country})</div>
+                        <div class="row">
+                            <div class="col-4">
+                                <img src="${meteo.image}" alt="Condition météo" />
                             </div>
-                        `;
-                    })
-                    .catch(error => {
-                        console.error(`Erreur lors de la récupération des données pour ${ville}:`, error);
-                        output += `
-                            <div class="col my-2 p-0">
-                                <div class="card p-2 ps-3 border-0 shadow-lg rounded-4 bg-danger text-white">
-                                    <div class="fs-5">${ville}</div>
-                                    <div class="fs-6">Erreur de récupération des données.</div>
-                                </div>
+                            <div class="col-8">
+                                <div class="fs-1">${Math.round(temperature)}°C</div>
+                                <div class="fs-6">${meteo.desc}</div>
                             </div>
-                        `;
-                    });
-            });
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            output += `
+                <div class="col my-2 p-0">
+                    <div class="card p-2 ps-3 border-0 shadow-lg rounded-4 bg-danger text-white">
+                        <div class="fs-5">${villeName}</div>
+                        <div class="fs-6">Erreur de récupération des données.</div>
+                    </div>
+                </div>
+            `;
+        }
     });
+
     Promise.all(promesses)
         .then(() => {
             // Mise à jour du contenu HTML une fois toutes les requêtes terminées
