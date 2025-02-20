@@ -19,18 +19,17 @@ async function meteo(){
 
     const nameCity = document.getElementById('ville').value;
     const dataVille = await ville(nameCity);
-    const dataHour = await getHourlyWeather(dataVille.lat, dataVille.lon);
+    const meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
 
-    for(let i = 0; i < dataHour.wmoCode.length; i++){
-        const imageurl = await getImageWMOCODE(dataHour.wmoCode[i]);
+    for(let i = 0; i < meteoJournee.taille.length; i++){
         output.innerHTML+=
             '<div class="col-2">'+
             '<div class="card text-center border-0">'+
             '<div class="card-body">'+
-            '<h3 class="card-title text-center">'+ convertionUnixEnHeure(dataHour.time[i])+'</h3>'+
-            '<img src="'+ imageurl.image +'" class="card-img-top" alt="card-image">'+
-            '<p class="card-text text-center fw-bold fs-4">'+ Math.round(dataHour.temperature[i]) +'°C</p>'+
-            '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ dataHour.precipitation[i]+'%</p>'+
+            '<h3 class="card-title text-center">'+ meteoJournee.heure +'</h3>'+
+            '<img src="'+ icon +'" class="card-img-top" alt="Icône de la situation de météo">'+
+            '<p class="card-text text-center fw-bold fs-4">'+ meteoJournee.temperature +'°C</p>'+
+            '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ meteoJournee.precipitation +'%</p>'+
             '</div>'+
             '</div>'+
             '</div>';
@@ -39,18 +38,17 @@ async function meteo(){
     output.classList.remove("bg-light");
     output.classList.add("bg-white");
 
-    const dataWeekly = await getWeekWeather(dataVille.lat, dataVille.lon);
+    const meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
 
     for(let i = 0; i < dataWeekly.wmoCode.length; i++){
-        const imageUrlHebdo = await getImageWMOCODE(dataWeekly.wmoCode[i]);
         output2.innerHTML +=
             '<div class="my-2 p-0">'+
             '<div class="card border-0  shadow-lg rounded-4">'+
             '<div class="card-body p-0 row text-center d-flex align-items-center">'+
-            '<div class="col-3 p-0"><h3>'+convertionUnixEnDate(dataWeekly.day[i])+'</h3></div>'+
-            '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+ dataWeekly.precipitation_max[i]+'%</div>'+
+            '<div class="col-3 p-0"><h3>'+ meteoSemaine.date +'</h3></div>'+
+            '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+  +'%</div>'+
             '<div class="col-3 p-0"><img src="'+ imageUrlHebdo.image +'"  alt="Image du condition de météo"></div>'+
-            '<div class="col-3 p-0 fw-bold fs-4">'+Math.round(dataWeekly.temperature_min[i])+'° / '+Math.round(dataWeekly.temperature_max[i])+'°</div>'+
+            '<div class="col-3 p-0 fw-bold fs-4">'+ meteoSemaine.temperature_min +'° / '+ meteoSemaine.temperature_max +'°</div>'+
             '</div>'+
             '</div>'+
             '</div>';
@@ -63,65 +61,6 @@ async function meteo(){
 };
 
 /*
-    Fonction qui convertit le temps Unix en heure
-*/
-function convertionUnixEnHeure(unixtime){
-    let unix = unixtime;
-
-    var date = new Date(unix * 1000);
-
-    var hours = date.getHours();
-
-    var minutes = "0" + date.getMinutes();
-
-    var formattedTime = hours + ':' + minutes.substring(-2);
-
-    return formattedTime;
-}
-
-/*
-    Fonction qui récupère l'image et la description de la météo
-*/
-async function getImageWMOCODE(wmoCode){
-    let wmocode = wmoCode;
-    const response = await fetch('./assets/images/weather_code.json');
-
-    const json = await response.json();
-
-    const imageurl = json[wmocode].day.image;
-    const description = json[wmocode].day.description;
-
-    return {image: imageurl, desc: description};
-}
-
-/*
-    Fonction qui convertit le temps Unix en date
-*/
-function convertionUnixEnDate(unixdate){
-    const jourAujourd = new Date().toLocaleString('FR-fr', {  weekday: 'long' });
-
-    let unix = unixdate;
-    var date = new Date(unix*1000);
-
-    if (isNaN(date.getTime())) {
-        console.error("Date non valide :", date);
-        return "Date non valide";
-    }
-
-    const getJour =  new Intl.DateTimeFormat("fr-FR", {weekday: "long"}).format(date);
-
-    let jourSemaine = null;
-
-    if(jourAujourd === getJour){
-        jourSemaine = "Aujourd'hui";
-    }else{
-        jourSemaine = new Intl.DateTimeFormat("fr-FR", {weekday: "long"}).format(date);
-    }
-
-    return jourSemaine;
-}
-
-/* 
     Fonction qui récupère les données météo de plusieurs villes du monde entier
 */
 async function villesMondeEntierMeteo() {
@@ -133,25 +72,25 @@ async function villesMondeEntierMeteo() {
             const dataVille = await ville(villeName);
             const {lat, lon, country, name} = dataVille;
             const dataWeather = await getCurrentWeather(lat, lon);
-            const {temperature, wmoCode} = dataWeather; // Extraction de weathercode
-            const meteo = await getImageWMOCODE(wmoCode);
+            const {temperature, image, description} = dataWeather;
             output += `
                 <div class="col my-2 p-0 mx-1">
                     <div class="card p-2 ps-3 border-0 rounded-4">
                         <div class="fs-5">${name} (${country})</div>
                         <div class="row">
                             <div class="col-4">
-                                <img src="${meteo.image}" alt="Condition météo" />
+                                <img src="${image}" alt="Condition météo" />
                             </div>
                             <div class="col-8">
-                                <div class="fs-1">${Math.round(temperature)}°C</div>
-                                <div class="fs-6">${meteo.desc}</div>
+                                <div class="fs-1">${temperature}°C</div>
+                                <div class="fs-6">${description}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
         } catch (error) {
+            console.log(error);
             output += `
                 <div class="col my-2 p-0">
                     <div class="card p-2 ps-3 border-0 shadow-lg rounded-4 bg-danger text-white">
