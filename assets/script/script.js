@@ -1,7 +1,7 @@
 import { ville } from './rechercheVille.js';
 import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./api/APImeteo.js";
 import { getWeatherIcon } from "./utilitaire/weatherData.js";
-import { geolocalisation } from './utilitaire/geolocalisation.js';
+import { geolocalisation } from './geo/geolocalisation.js';
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
