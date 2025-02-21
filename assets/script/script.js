@@ -1,9 +1,12 @@
 import { ville } from './rechercheVille.js';
-import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./APImeteo.js";
+import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./api/APImeteo.js";
+import { getWeatherIcon } from "./utilitaire/weatherData.js";
+import { geolocalisation } from './utilitaire/geolocalisation.js';
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
     villesMondeEntierMeteo();
+    meteo();
 });
 
 /*
@@ -17,43 +20,53 @@ async function meteo(){
     output2.innerHTML = '';
     actuel.innerHTML = '';
 
-    const nameCity = document.getElementById('ville').value;
-    const dataVille = await ville(nameCity);
-    const dataHour = await getHourlyWeather(dataVille.lat, dataVille.lon);
+    const nameCity = document.getElementById('ville').value.trim();
 
-    for(let i = 0; i < dataHour.wmoCode.length; i++){
-        const imageurl = await getImageWMOCODE(dataHour.wmoCode[i]);
-        output.innerHTML+=
-            '<div class="col-2">'+
-            '<div class="card text-center border-0">'+
-            '<div class="card-body">'+
-            '<h3 class="card-title text-center">'+ convertionUnixEnHeure(dataHour.time[i])+'</h3>'+
-            '<img src="'+ imageurl.image +'" class="card-img-top" alt="card-image">'+
-            '<p class="card-text text-center fw-bold fs-4">'+ Math.round(dataHour.temperature[i]) +'°C</p>'+
-            '<p class="card-text text-center"><i class="bi bi-droplet"></i> '+ dataHour.precipitation[i]+'%</p>'+
-            '</div>'+
-            '</div>'+
-            '</div>';
+    var meteoJournee = null;
+    var meteoSemaine = null;
+
+    if(nameCity){  // Si l'utilisateur a saisi une ville
+        const dataVille = await ville(nameCity);
+        meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
+        meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
+    } else if(navigator.geolocation){ // Sinon, on utilise la géolocalisation
+        const dataPos = await geolocalisation();
+        meteoJournee = await getHourlyWeather(dataPos.lat, dataPos.lon);
+        meteoSemaine = await getWeekWeather(dataPos.lat, dataPos.lon);
     }
+
+    for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
+        const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
+        output.innerHTML += `
+            <div class="col-2">
+                <div class="card text-center border-0">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">${meteoJournee.heure[i]}</h3>
+                        <img src="${meteoSituation.image}" class="card-img-top" alt="Icône météo">
+                        <p class="card-text text-center fw-bold fs-4">${meteoJournee.temperature[i]}°C</p>
+                        <p class="card-text text-center"><i class="bi bi-droplet"></i> ${meteoJournee.precipitation[i]}%</p>
+                    </div>
+                </div>
+            </div>`;
+    }
+    
     output.classList.remove("blocParDefaut");
     output.classList.remove("bg-light");
     output.classList.add("bg-white");
 
-    const dataWeekly = await getWeekWeather(dataVille.lat, dataVille.lon);
-
-    for(let i = 0; i < dataWeekly.wmoCode.length; i++){
-        const imageUrlHebdo = await getImageWMOCODE(dataWeekly.wmoCode[i]);
-        output2.innerHTML +=
-            '<div class="my-2 p-0">'+
-            '<div class="card border-0  shadow-lg rounded-4">'+
-            '<div class="card-body p-0 row text-center d-flex align-items-center">'+
-            '<div class="col-3 p-0"><h3>'+convertionUnixEnDate(dataWeekly.day[i])+'</h3></div>'+
-            '<div class="col-3 p-0"><i class="bi bi-droplet"></i>'+ dataWeekly.precipitation_max[i]+'%</div>'+
-            '<div class="col-3 p-0"><img src="'+ imageUrlHebdo.image +'"  alt="Image du condition de météo"></div>'+
-            '<div class="col-3 p-0 fw-bold fs-4">'+Math.round(dataWeekly.temperature_min[i])+'° / '+Math.round(dataWeekly.temperature_max[i])+'°</div>'+
-            '</div>'+
-            '</div>'+
-            '</div>';
+    for(let i = 0; i < meteoSemaine.wmoCode.length; i++){
+        const meteoSituation = await getWeatherIcon(meteoSemaine.wmoCode[i]);
+        output2.innerHTML +=`
+            <div class="my-2 p-0">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body p-0 row text-center d-flex align-items-center">
+                        <div class="col-3 p-0"><h3> ${ meteoSemaine.date[i] } </h3></div>
+                        <div class="col-3 p-0"><i class="bi bi-droplet"></i> ${ meteoSemaine.precipitation_max[i] } %</div>
+                        <div class="col-3 p-0"><img src=" ${ meteoSituation.image } " alt="Image du condition de météo"></div>
+                        <div class="col-3 p-0 fw-bold fs-4"> ${ meteoSemaine.temperature_min[i] }° / ${ meteoSemaine.temperature_max[i] }°</div>
+                    </div>
+                </div>
+            </div>`;
 
     }
     output2.classList.remove("blocParDefaut");
@@ -63,65 +76,6 @@ async function meteo(){
 };
 
 /*
-    Fonction qui convertit le temps Unix en heure
-*/
-function convertionUnixEnHeure(unixtime){
-    let unix = unixtime;
-
-    var date = new Date(unix * 1000);
-
-    var hours = date.getHours();
-
-    var minutes = "0" + date.getMinutes();
-
-    var formattedTime = hours + ':' + minutes.substring(-2);
-
-    return formattedTime;
-}
-
-/*
-    Fonction qui récupère l'image et la description de la météo
-*/
-async function getImageWMOCODE(wmoCode){
-    let wmocode = wmoCode;
-    const response = await fetch('./assets/images/weather_code.json');
-
-    const json = await response.json();
-
-    const imageurl = json[wmocode].day.image;
-    const description = json[wmocode].day.description;
-
-    return {image: imageurl, desc: description};
-}
-
-/*
-    Fonction qui convertit le temps Unix en date
-*/
-function convertionUnixEnDate(unixdate){
-    const jourAujourd = new Date().toLocaleString('FR-fr', {  weekday: 'long' });
-
-    let unix = unixdate;
-    var date = new Date(unix*1000);
-
-    if (isNaN(date.getTime())) {
-        console.error("Date non valide :", date);
-        return "Date non valide";
-    }
-
-    const getJour =  new Intl.DateTimeFormat("fr-FR", {weekday: "long"}).format(date);
-
-    let jourSemaine = null;
-
-    if(jourAujourd === getJour){
-        jourSemaine = "Aujourd'hui";
-    }else{
-        jourSemaine = new Intl.DateTimeFormat("fr-FR", {weekday: "long"}).format(date);
-    }
-
-    return jourSemaine;
-}
-
-/* 
     Fonction qui récupère les données météo de plusieurs villes du monde entier
 */
 async function villesMondeEntierMeteo() {
@@ -130,26 +84,26 @@ async function villesMondeEntierMeteo() {
 
     const promesses = villes.map(async villeName => {
         try {
+            
             const dataVille = await ville(villeName);
             const {lat, lon, country, name} = dataVille;
             const dataWeather = await getCurrentWeather(lat, lon);
-            const {temperature, wmoCode} = dataWeather; // Extraction de weathercode
-            const meteo = await getImageWMOCODE(wmoCode);
+            let meteoSituation = await getWeatherIcon(dataWeather.wmoCode);
             output += `
-                <div class="col my-2 p-0 mx-1">
+                <a class="col my-2 p-0 mx-1 text-decoration-none" id="search" style="cursor: pointer;">
                     <div class="card p-2 ps-3 border-0 rounded-4">
-                        <div class="fs-5">${name} (${country})</div>
-                        <div class="row">
+                        <div class="fs-5">${name} <span class="fw-bold">(${country})</span></div>
+                        <div class="row"> 
                             <div class="col-4">
-                                <img src="${meteo.image}" alt="Condition météo" />
+                                <img src="${meteoSituation.image}" alt="Condition météo" />
                             </div>
                             <div class="col-8">
-                                <div class="fs-1">${Math.round(temperature)}°C</div>
-                                <div class="fs-6">${meteo.desc}</div>
+                                <div class="fs-1 fw-bold">${dataWeather.temperature}°C</div>
+                                <div class="fs-6">${meteoSituation.desc}</div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             `;
         } catch (error) {
             output += `
