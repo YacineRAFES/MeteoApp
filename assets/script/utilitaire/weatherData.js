@@ -1,19 +1,12 @@
 //Recupère WMOCODE et retourne l'image et la description
 export async function getWeatherIcon(wmoCode){
-    try {
-        const response = await fetch('./assets/images/weather_code.json');
-        const json = await response.json();
+    let wmocode = wmoCode;
+    const response = await fetch('./assets/images/weather_code.json');
 
-        if (!json[wmoCode]) {
-            throw new Error(`Code météo inconnu: ${wmoCode}`);
-        }
+    const json = await response.json();
 
-        return {
-            image: json[wmoCode].day.image,
-            desc: json[wmoCode].day.description
-        };
-    } catch (error) {
-        console.error("Erreur lors de la récupération de l'icône météo :", error);
-        return { image: '', desc: 'Description non disponible' };
-    }
+    const imageurl = json[wmocode].day.image;
+    const description = json[wmocode].day.description;
+
+    return {image: imageurl, desc: description};
 }
