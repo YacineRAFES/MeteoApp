@@ -2,6 +2,7 @@ import { ville } from './rechercheVille.js';
 import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./api/APImeteo.js";
 import { getWeatherIcon } from "./utilitaire/weatherData.js";
 import { geolocalisation } from './utilitaire/geolocalisation.js';
+import { cartographie } from "./cartographie.js";
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
@@ -24,16 +25,21 @@ async function meteo(){
 
     var meteoJournee = null;
     var meteoSemaine = null;
+    var meteoActuel = null;
 
     if(nameCity){  // Si l'utilisateur a saisi une ville
         const dataVille = await ville(nameCity);
         meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
         meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
+        meteoActuel = await getCurrentWeather(dataVille.lat, dataVille.lon);
+        
     } else if(navigator.geolocation){ // Sinon, on utilise la géolocalisation
         const dataPos = await geolocalisation();
         meteoJournee = await getHourlyWeather(dataPos.lat, dataPos.lon);
         meteoSemaine = await getWeekWeather(dataPos.lat, dataPos.lon);
     }
+    document.getElementById('map').innerHTML= await cartographie(dataVille.lon, dataVille.lat);
+    
 
     for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
         const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);

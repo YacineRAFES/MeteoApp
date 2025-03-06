@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "bootstrap-icons": "^1.11.3",
-    "chart.js": "^4.4.7"
+    "chart.js": "^4.4.7",
+    "dotenv": "^16.4.7",
+    "leaflet": "^1.9.4"
   }
 }

@@ -13,6 +13,13 @@
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon/favicon-16x16.png">
     <link rel="manifest" href="assets/images/favicon/site.webmanifest">
     <title>MeteoApp</title>
+    <link rel="stylesheet" href="./dist/leaflet.css" />
+    <script src="./dist/leaflet.js"></script>
+    <style>
+        #map {
+            width: 50%;
+        }
+    </style>
 </head>
 <body class="bg-body-secondary">
     <div class="contrainer-fluid">
@@ -50,23 +57,28 @@
 
             </div>
 
-            <div class="row mt-2 rounded-4 bg-white shadow-lg ">
-                <div class="col fs-1">
-                    NOM DE LA VILLE
-                </div>
-                <div>VEN. 21 FEVRIER 11:11</div>
-                <div class="row">
-                    <div class="col">
-                        <img style="height: 300px;" src="http://openweathermap.org/img/wn/03d@2x.png" alt="Icône météo"><span style="font-size: 90px;">11°C</span>
-                    </div>
-                    <div class="col">
-                        <div class="text-end">
-                            <div>Ensolleillé</div>
-                            <div>16°/10°</div>
-                            <div>Ressenti 10°C</div>
+            <div class="row">
+                <div class="col-6 bg-white rounded-4">
+                    <div class="row p-3">
+                        <div class="col-6 ">
+                            <div class="col fs-1 fw-bold">
+                                NANCY
+                            </div>
+                            <div class="fs-6">ven 11 fév. 2025, 11:11</div>
+                            <img style="height: 150px;" src="http://openweathermap.org/img/wn/03d@2x.png" alt="Icône météo"><span class="fs-1 fw-bold">11°C</span>
                         </div>
-                        
+                        <div class="col-6 mt-2 pe-5">
+                            <div class="text-end">
+                                <div>Ensolleillé</div>
+                                <div>16°/10°</div>
+                                <div>Ressenti 10°C</div>
+                            </div>
+                        </div>
                     </div>
+
+                </div>
+                <div class="col-6 bg-white rounded-4" id="map">
+
                 </div>
             </div>
             <div class="row mt-2 rounded-4 bg-light shadow-lg blocParDefaut" id="">
@@ -148,12 +160,11 @@
     <footer>
         <div class="container my-3">
             <div class="text-center">
-                Les informations récupérées proviennent de l'API OpenMeteo.
+                Les informations récupérées proviennent de l'API <a href="https://open-meteo.com/">OpenMeteo</a>, <a href="https://openweathermap.org">OpenWeatherMap</a> et la bibliothèque Javascript de cartographie <a href="https://leafletjs.com/">LeafletJS</a>.
             </div>
         </div>
     </footer>
-    <script src="node_modules/chart.js/dist/chart.umd.js"></script>
-    
     <script type="module" src="./assets/script/script.js"></script>
+    <script src="./assets/script/c"
 </body>
 </html>
