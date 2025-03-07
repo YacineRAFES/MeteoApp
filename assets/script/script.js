@@ -1,14 +1,17 @@
 import { ville } from './rechercheVille.js';
 import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./api/APImeteo.js";
 import { getWeatherIcon } from "./utilitaire/weatherData.js";
-import { geolocalisation } from './utilitaire/geolocalisation.js';
+import {geolocalisation, getCityName} from './utilitaire/geolocalisation.js';
 import { cartographie } from "./cartographie.js";
+import { CONFIG } from "./api/config.js";
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
     villesMondeEntierMeteo();
     meteo();
 });
+
+
 
 /*
     Fonction qui récupère les données météo de la ville saisie par l'utilisateur
@@ -26,21 +29,59 @@ async function meteo(){
     var meteoJournee = null;
     var meteoSemaine = null;
     var meteoActuel = null;
+    var dataVille = null;
 
     if(nameCity){  // Si l'utilisateur a saisi une ville
-        const dataVille = await ville(nameCity);
+        dataVille = await ville(nameCity);
         meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
         meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
         meteoActuel = await getCurrentWeather(dataVille.lat, dataVille.lon);
         
     } else if(navigator.geolocation){ // Sinon, on utilise la géolocalisation
-        const dataPos = await geolocalisation();
-        meteoJournee = await getHourlyWeather(dataPos.lat, dataPos.lon);
-        meteoSemaine = await getWeekWeather(dataPos.lat, dataPos.lon);
+        dataVille = await geolocalisation();
+        meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
+        meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
+        meteoActuel = await getCurrentWeather(dataVille.lat, dataVille.lon);
     }
-    document.getElementById('map').innerHTML= await cartographie(dataVille.lon, dataVille.lat);
-    
 
+    if (meteoActuel) {
+        const meteoSituation = await getWeatherIcon(meteoActuel.wmoCode);
+        const cityName = await getCityName(dataVille.lat, dataVille.lon);
+        if (meteoSituation) {
+            // Pour l'affichage de la météo actuelle
+            actuel.innerHTML = `
+        <div class="col-6 bg-white rounded-4">
+            <div class="row p-3">
+                <div class="col-6 ">
+                    <div class="col fs-1 fw-bold">
+                        ${cityName.nameCity}
+                    </div>
+                    <div class="fs-6">ven 11 fév. 2025, 11:11</div>
+                    <img style="height: 150px;" src="${meteoSituation.image}" alt="Icône météo"><span class="fs-1 fw-bold">${meteoActuel.temperature}°C</span>
+                </div>
+                <div class="col-6 mt-2 pe-5">
+                    <div class="text-end">
+                        <div>${meteoSituation.desc}</div>
+                        <div>Humidité: ${meteoActuel.humidite} %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 bg-white rounded-4" id="map"></div>`;
+
+            // Affichage de la carte
+            cartographie(dataVille.lat, dataVille.lon)
+                .then(() => {
+                    console.log("Carte affichée avec succès.");
+                })
+                .catch(error => {
+                    console.error("Erreur lors de l'affichage de la carte :", error);
+                });
+        } else {
+            console.error("Erreur lors de la récupération des données météo.");
+        }
+    }
+    
     for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
         const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
         output.innerHTML += `
@@ -96,7 +137,7 @@ async function villesMondeEntierMeteo() {
             const dataWeather = await getCurrentWeather(lat, lon);
             let meteoSituation = await getWeatherIcon(dataWeather.wmoCode);
             output += `
-                <a class="col my-2 p-0 mx-1 text-decoration-none" id="search" style="cursor: pointer;">
+                <a href="#" class="col my-2 p-0 mx-1 text-decoration-none align-content-stretch">
                     <div class="card p-2 ps-3 border-0 rounded-4">
                         <div class="fs-5">${name} <span class="fw-bold">(${country})</span></div>
                         <div class="row"> 
