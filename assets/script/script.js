@@ -35,92 +35,49 @@ async function meteo(){
         meteoActuel = await getCurrentWeather(dataVille.lat, dataVille.lon);
         
     } else if(navigator.geolocation){ // Sinon, on utilise la géolocalisation
-        dataVille = await geolocalisation();
-        meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
-        meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
-        meteoActuel = await getCurrentWeather(dataVille.lat, dataVille.lon);
+        const dataPos = await geolocalisation();
+        meteoJournee = await getHourlyWeather(dataPos.lat, dataPos.lon);
+        meteoSemaine = await getWeekWeather(dataPos.lat, dataPos.lon);
     }
 
-    if (meteoActuel) {
-        const meteoSituation = await getWeatherIcon(meteoActuel.wmoCode);
-        const cityName = await getCityName(dataVille.lat, dataVille.lon);
-        if (meteoSituation) {
-            // Pour l'affichage de la météo actuelle
-            actuel.innerHTML = `
-        <div class="col-6 bg-white rounded-start-4">
-            <div class="row p-3">
-                <div class="col-6 ">
-                    <div class="col fs-1 fw-bold">
-                        ${cityName.nameCity}
-                    </div>
-                    <div class="fs-6">ven 11 fév. 2025, 11:11</div>
-                    <img style="height: 150px;" src="${meteoSituation.image}" alt="Icône météo"><span class="fs-1 fw-bold">${meteoActuel.temperature}°C</span>
-                </div>
-                <div class="col-6 mt-2 pe-5">
-                    <div class="text-end">
-                        <div>${meteoSituation.desc}</div>
-                        <div>Humidité: ${meteoActuel.humidite} %</div>
+    for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
+        const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
+        output.innerHTML += `
+            <div class="col-2">
+                <div class="card text-center border-0">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">${meteoJournee.heure[i]}</h3>
+                        <img src="${meteoSituation.image}" class="card-img-top" alt="Icône météo">
+                        <p class="card-text text-center fw-bold fs-4">${meteoJournee.temperature[i]}°C</p>
+                        <p class="card-text text-center"><i class="bi bi-droplet"></i> ${meteoJournee.precipitation[i]}%</p>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 bg-white rounded-end-4" id="map"></div>`;
+            </div>`;
+    }
+    
+    output.classList.remove("blocParDefaut");
+    output.classList.remove("bg-light");
+    output.classList.add("bg-white");
 
-            // Affichage de la carte
-            cartographie(dataVille.lat, dataVille.lon)
-                .then(() => {
-                    console.log("Carte affichée avec succès.");
-                })
-                .catch(error => {
-                    console.error("Erreur lors de l'affichage de la carte :", error);
-                });
-        } else {
-            console.error("Erreur lors de la récupération des données météo.");
-        }
-    }
-    
-    if(meteoJournee){
-        output.innerHTML = '';
-        for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
-            const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
-            output.innerHTML += `
-                <div class="col-2">
-                    <div class="card text-center border-0">
-                        <div class="card-body">
-                            <h3 class="card-title text-center">${meteoJournee.heure[i]}</h3>
-                            <img src="${meteoSituation.image}" class="card-img-top" alt="Icône météo">
-                            <p class="card-text text-center fw-bold fs-4">${meteoJournee.temperature[i]}°C</p>
-                            <p class="card-text text-center"><i class="bi bi-droplet"></i> ${meteoJournee.precipitation[i]}%</p>
-                        </div>
+    for(let i = 0; i < meteoSemaine.wmoCode.length; i++){
+        const meteoSituation = await getWeatherIcon(meteoSemaine.wmoCode[i]);
+        output2.innerHTML +=`
+            <div class="my-2 p-0">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body p-0 row text-center d-flex align-items-center">
+                        <div class="col-3 p-0"><h3> ${ meteoSemaine.date[i] } </h3></div>
+                        <div class="col-3 p-0"><i class="bi bi-droplet"></i> ${ meteoSemaine.precipitation_max[i] } %</div>
+                        <div class="col-3 p-0"><img src=" ${ meteoSituation.image } " alt="Image du condition de météo"></div>
+                        <div class="col-3 p-0 fw-bold fs-4"> ${ meteoSemaine.temperature_min[i] }° / ${ meteoSemaine.temperature_max[i] }°</div>
                     </div>
-                </div>`;
-        }
-        output.classList.remove("blocParDefaut");
-        output.classList.remove("bg-light");
-        output.classList.add("bg-white");
+                </div>
+            </div>`;
+
     }
-    
-    if(meteoSemaine){
-        output2.innerHTML = '';
-        for(let i = 0; i < meteoSemaine.wmoCode.length; i++){
-            const meteoSituation = await getWeatherIcon(meteoSemaine.wmoCode[i]);
-            output2.innerHTML +=`
-                <div class="my-2 p-0">
-                    <div class="card border-0 shadow-lg rounded-4">
-                        <div class="card-body p-0 row text-center d-flex align-items-center">
-                            <div class="col-3 p-0"><h3> ${ meteoSemaine.date[i] } </h3></div>
-                            <div class="col-3 p-0"><i class="bi bi-droplet"></i> ${ meteoSemaine.precipitation_max[i] } %</div>
-                            <div class="col-3 p-0"><img src=" ${ meteoSituation.image } " alt="Image du condition de météo"></div>
-                            <div class="col-3 p-0 fw-bold fs-4"> ${ meteoSemaine.temperature_min[i] }° / ${ meteoSemaine.temperature_max[i] }°</div>
-                        </div>
-                    </div>
-                </div>`;
-    
-        }
-        output2.classList.remove("blocParDefaut");
-        output2.classList.remove("bg-light");
-        output2.classList.remove("shadow-lg");
-    }
+    output2.classList.remove("blocParDefaut");
+    output2.classList.remove("bg-light");
+    output2.classList.remove("shadow-lg");
+
 };
 
 /*
