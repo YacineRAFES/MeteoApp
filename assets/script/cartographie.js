@@ -1,13 +1,13 @@
-// TODO: A faire 
+// This function initializes a Leaflet map with OpenStreetMap and OpenWeatherMap layers
 import { CONFIG } from "./api/config.js";
 
 export function cartographie(lon, lat) {
     return new Promise((resolve, reject) => {
         try {
-            const apiKey = CONFIG.API_OPENWEATHERMAP_KEY;
+            const apiKey = CONFIG.OPENWEATHERMAP_API_KEY;
 
             // Création de la carte Leaflet
-            var map = L.map('map').setView([lon, lat], 8);
+            let map = L.map('map').setView([lon, lat], 8);
 
             // Ajout du fond de carte OpenStreetMap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

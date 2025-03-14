@@ -3,15 +3,12 @@ import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./api/APImet
 import { getWeatherIcon } from "./utilitaire/weatherData.js";
 import {geolocalisation, getCityName} from './utilitaire/geolocalisation.js';
 import { cartographie } from "./cartographie.js";
-import { CONFIG } from "./api/config.js";
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
     villesMondeEntierMeteo();
     meteo();
 });
-
-
 
 /*
     Fonction qui récupère les données météo de la ville saisie par l'utilisateur
@@ -26,10 +23,10 @@ async function meteo(){
 
     const nameCity = document.getElementById('ville').value.trim();
 
-    var meteoJournee = null;
-    var meteoSemaine = null;
-    var meteoActuel = null;
-    var dataVille = null;
+    let meteoJournee = null;
+    let meteoSemaine = null;
+    let meteoActuel = null;
+    let dataVille = null;
 
     if(nameCity){  // Si l'utilisateur a saisi une ville
         dataVille = await ville(nameCity);
@@ -50,7 +47,7 @@ async function meteo(){
         if (meteoSituation) {
             // Pour l'affichage de la météo actuelle
             actuel.innerHTML = `
-        <div class="col-6 bg-white rounded-4">
+        <div class="col-6 bg-white rounded-start-4">
             <div class="row p-3">
                 <div class="col-6 ">
                     <div class="col fs-1 fw-bold">
@@ -67,7 +64,7 @@ async function meteo(){
                 </div>
             </div>
         </div>
-        <div class="col-6 bg-white rounded-4" id="map"></div>`;
+        <div class="col-6 bg-white rounded-end-4" id="map"></div>`;
 
             // Affichage de la carte
             cartographie(dataVille.lat, dataVille.lon)
@@ -82,44 +79,48 @@ async function meteo(){
         }
     }
     
-    for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
-        const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
-        output.innerHTML += `
-            <div class="col-2">
-                <div class="card text-center border-0">
-                    <div class="card-body">
-                        <h3 class="card-title text-center">${meteoJournee.heure[i]}</h3>
-                        <img src="${meteoSituation.image}" class="card-img-top" alt="Icône météo">
-                        <p class="card-text text-center fw-bold fs-4">${meteoJournee.temperature[i]}°C</p>
-                        <p class="card-text text-center"><i class="bi bi-droplet"></i> ${meteoJournee.precipitation[i]}%</p>
+    if(meteoJournee){
+        output.innerHTML = '';
+        for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
+            const meteoSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
+            output.innerHTML += `
+                <div class="col-2">
+                    <div class="card text-center border-0">
+                        <div class="card-body">
+                            <h3 class="card-title text-center">${meteoJournee.heure[i]}</h3>
+                            <img src="${meteoSituation.image}" class="card-img-top" alt="Icône météo">
+                            <p class="card-text text-center fw-bold fs-4">${meteoJournee.temperature[i]}°C</p>
+                            <p class="card-text text-center"><i class="bi bi-droplet"></i> ${meteoJournee.precipitation[i]}%</p>
+                        </div>
                     </div>
-                </div>
-            </div>`;
+                </div>`;
+        }
+        output.classList.remove("blocParDefaut");
+        output.classList.remove("bg-light");
+        output.classList.add("bg-white");
     }
     
-    output.classList.remove("blocParDefaut");
-    output.classList.remove("bg-light");
-    output.classList.add("bg-white");
-
-    for(let i = 0; i < meteoSemaine.wmoCode.length; i++){
-        const meteoSituation = await getWeatherIcon(meteoSemaine.wmoCode[i]);
-        output2.innerHTML +=`
-            <div class="my-2 p-0">
-                <div class="card border-0 shadow-lg rounded-4">
-                    <div class="card-body p-0 row text-center d-flex align-items-center">
-                        <div class="col-3 p-0"><h3> ${ meteoSemaine.date[i] } </h3></div>
-                        <div class="col-3 p-0"><i class="bi bi-droplet"></i> ${ meteoSemaine.precipitation_max[i] } %</div>
-                        <div class="col-3 p-0"><img src=" ${ meteoSituation.image } " alt="Image du condition de météo"></div>
-                        <div class="col-3 p-0 fw-bold fs-4"> ${ meteoSemaine.temperature_min[i] }° / ${ meteoSemaine.temperature_max[i] }°</div>
+    if(meteoSemaine){
+        output2.innerHTML = '';
+        for(let i = 0; i < meteoSemaine.wmoCode.length; i++){
+            const meteoSituation = await getWeatherIcon(meteoSemaine.wmoCode[i]);
+            output2.innerHTML +=`
+                <div class="my-2 p-0">
+                    <div class="card border-0 shadow-lg rounded-4">
+                        <div class="card-body p-0 row text-center d-flex align-items-center">
+                            <div class="col-3 p-0"><h3> ${ meteoSemaine.date[i] } </h3></div>
+                            <div class="col-3 p-0"><i class="bi bi-droplet"></i> ${ meteoSemaine.precipitation_max[i] } %</div>
+                            <div class="col-3 p-0"><img src=" ${ meteoSituation.image } " alt="Image du condition de météo"></div>
+                            <div class="col-3 p-0 fw-bold fs-4"> ${ meteoSemaine.temperature_min[i] }° / ${ meteoSemaine.temperature_max[i] }°</div>
+                        </div>
                     </div>
-                </div>
-            </div>`;
-
+                </div>`;
+    
+        }
+        output2.classList.remove("blocParDefaut");
+        output2.classList.remove("bg-light");
+        output2.classList.remove("shadow-lg");
     }
-    output2.classList.remove("blocParDefaut");
-    output2.classList.remove("bg-light");
-    output2.classList.remove("shadow-lg");
-
 };
 
 /*
@@ -137,8 +138,8 @@ async function villesMondeEntierMeteo() {
             const dataWeather = await getCurrentWeather(lat, lon);
             let meteoSituation = await getWeatherIcon(dataWeather.wmoCode);
             output += `
-                <a href="#" class="col my-2 p-0 mx-1 text-decoration-none align-content-stretch">
-                    <div class="card p-2 ps-3 border-0 rounded-4">
+                <a href="#" class="col my-2 p-0 mx-1 text-decoration-none">
+                    <div class="card d-flex flex-column h-100 p-2 ps-3 border-0 rounded-4">
                         <div class="fs-5">${name} <span class="fw-bold">(${country})</span></div>
                         <div class="row"> 
                             <div class="col-4">
