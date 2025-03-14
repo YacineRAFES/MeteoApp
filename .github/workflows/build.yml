@@ -2,14 +2,17 @@ name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
-    Explore-GitHub-Actions:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository code
-              uses: actions/checkout@v4
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-            - name: Inject API Key
-              run: |
-                echo "export const CONFIG = { OPENWEATHERMAP_API_KEY: '${{ secrets.OPENWEATHERMAP_API_KEY }}' };" > assets/script/api/config.js
+      - name: Inject API Key
+        run: |
+          echo "export const CONFIG = { OPENWEATHERMAP_API_KEY: '${{ secrets.OPENWEATHERMAP_API_KEY }}' };" > assets/script/api/config.js
 
-            - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: List files
+        run: ls -R assets/script/api
+
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
