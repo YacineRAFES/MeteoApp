@@ -3,17 +3,18 @@ import { getWeatherIcon } from "../utilitaire/weatherData.js";
 
 export function getCurrentWeather(lat, lon) {
     return new Promise((resolve, reject) => {
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Europe/Paris&timeformat=unixtime`)
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,weather_code,wind_speed_10m&timeformat=unixtime`)
             .then(response => response.json())
             .then(json => {
                 resolve({
-                    taille:             json.current_weather.weathercode,                    
-                    heure:              convertionUnixEnHeure(json.current_weather.time),
-                    temperature:        Math.round(json.current_weather.temperature),
-                    vitesse_vent:       json.current_weather.windspeed,
-                    cycle:              json.current_weather.is_day,
-                    wmoCode:            json.current_weather.weathercode
-                    
+                    taille:             json.current.weather_code,
+                    heure:              convertionUnixEnHeure(json.current.time),
+                    temperature:        Math.round(json.current.temperature_2m),
+                    vitesse_vent:       json.current.wind_speed_10m,
+                    cycle:              json.current.is_day,
+                    wmoCode:            json.current.weather_code,
+                    humidite:           json.current.relative_humidity_2m,
+                    precipitation:      json.current.precipitation,
                 });
             })
             .catch(error => reject(error));

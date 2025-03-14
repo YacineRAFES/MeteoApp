@@ -1,7 +1,8 @@
 import { ville } from './rechercheVille.js';
 import { getCurrentWeather, getHourlyWeather, getWeekWeather} from "./api/APImeteo.js";
 import { getWeatherIcon } from "./utilitaire/weatherData.js";
-import { geolocalisation } from './geo/geolocalisation.js';
+import {geolocalisation, getCityName} from './utilitaire/geolocalisation.js';
+import { cartographie } from "./cartographie.js";
 
 document.getElementById('search').addEventListener("click", () => meteo());
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,13 +23,17 @@ async function meteo(){
 
     const nameCity = document.getElementById('ville').value.trim();
 
-    var meteoJournee = null;
-    var meteoSemaine = null;
+    let meteoJournee = null;
+    let meteoSemaine = null;
+    let meteoActuel = null;
+    let dataVille = null;
 
     if(nameCity){  // Si l'utilisateur a saisi une ville
-        const dataVille = await ville(nameCity);
+        dataVille = await ville(nameCity);
         meteoJournee = await getHourlyWeather(dataVille.lat, dataVille.lon);
         meteoSemaine = await getWeekWeather(dataVille.lat, dataVille.lon);
+        meteoActuel = await getCurrentWeather(dataVille.lat, dataVille.lon);
+        
     } else if(navigator.geolocation){ // Sinon, on utilise la géolocalisation
         const dataPos = await geolocalisation();
         meteoJournee = await getHourlyWeather(dataPos.lat, dataPos.lon);
@@ -90,8 +95,8 @@ async function villesMondeEntierMeteo() {
             const dataWeather = await getCurrentWeather(lat, lon);
             let meteoSituation = await getWeatherIcon(dataWeather.wmoCode);
             output += `
-                <a class="col my-2 p-0 mx-1 text-decoration-none" id="search" style="cursor: pointer;">
-                    <div class="card p-2 ps-3 border-0 rounded-4">
+                <a href="#" class="col my-2 p-0 mx-1 text-decoration-none">
+                    <div class="card d-flex flex-column h-100 p-2 ps-3 border-0 rounded-4">
                         <div class="fs-5">${name} <span class="fw-bold">(${country})</span></div>
                         <div class="row"> 
                             <div class="col-4">

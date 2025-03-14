@@ -13,8 +13,16 @@
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon/favicon-16x16.png">
     <link rel="manifest" href="assets/images/favicon/site.webmanifest">
     <title>MeteoApp</title>
+    <link rel="stylesheet" href="./dist/leaflet.css" />
+    <script src="./dist/leaflet.js"></script>
+    <style>
+        #map {
+            width: 50%;
+        }
+    </style>
 </head>
 <body class="bg-body-secondary">
+    <!-- BANNIERE DU SITE -->
     <div class="contrainer-fluid">
         <div class="card text-bg-dark rounded-0 border-0">
             <video class="img-fluid w-100 wallpaper" autoplay muted loop>
@@ -26,31 +34,30 @@
             </div>
         </div>
     </div>
+    <!--    Prévision sur 7 villes principales -->
     <div class="container-fluid">
         <div class="row px-2" id="villePrincipale">
             <div class=" d-flex justify-content-center">
-                <div class="spinner-border text-primary m-5" style="width: 3rem; height: 3rem;"  role="status">
+                <output class="spinner-border text-primary m-5" style="width: 3rem; height: 3rem;">
                     <span class="visually-hidden">Loading...</span>
-                </div>
+                </output>
             </div>
         </div>
-        
     </div>
+    <!--    Recherche une ville -->
     <div class="container mt-4">
         <div class="text-center w-25 mx-auto">
             <p>Si vous refusez la géolocalisation, vous pouvez entrer une ville ci-dessous :</p>
             <input class="form-control text-center" id="ville" type="text" placeholder="Entrer le nom d'une ville" aria-label="Entrer le nom d'une ville">
             <button class="btn btn-light mt-2" id="search">Rechercher</button>
         </div>
-        <div id="weather">
+        <div id="weather" class="mt-3">
             <!-- Prévision actuelle -->
-            <div id="actuel" class="row mt-2 rounded-4 bg-light shadow-lg">
-                <div id="map_container" style="height: 500px; width: 100%;"></div>
-
-
+            <div class="row" id="actuel">
+            <!-- Affichage des information d'une ville -->
             </div>
-            <!-- Prévision d'aujourd'hui -->
-            <div class="row mt-2 rounded-4 bg-light shadow-lg blocParDefaut" id="output">
+            <!-- Prévision sur les 16 heures -->
+            <div class="row mt-3 rounded-4 bg-light shadow-lg blocParDefaut" id="output">
                 <div class="col m-auto">
                     
                 </div>
@@ -66,12 +73,10 @@
     <footer>
         <div class="container my-3">
             <div class="text-center">
-                Les informations récupérées proviennent de l'API OpenMeteo.
+                Les informations récupérées proviennent de l'API <a href="https://open-meteo.com/">OpenMeteo</a>, <a href="https://openweathermap.org">OpenWeatherMap</a> et la bibliothèque Javascript de cartographie <a href="https://leafletjs.com/">LeafletJS</a>.
             </div>
         </div>
     </footer>
-    <script src="node_modules/chart.js/dist/chart.umd.js"></script>
-    
     <script type="module" src="./assets/script/script.js"></script>
 </body>
 </html>
