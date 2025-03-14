@@ -3,4 +3,4 @@ node_modules/
 .idea/
 .idea
 
-assets\script\api\config.js
+assets/script/api/config.js
