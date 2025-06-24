@@ -1,24 +1,27 @@
 import { convertionUnixEnDate, convertionUnixEnHeure } from "../utilitaire/convertion.js";
 import { getWeatherIcon } from "../utilitaire/weatherData.js";
 
-export function getCurrentWeather(lat, lon) {
-    return new Promise((resolve, reject) => {
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,weather_code,wind_speed_10m&timeformat=unixtime`)
-            .then(response => response.json())
-            .then(json => {
-                resolve({
-                    taille:             json.current.weather_code,
-                    heure:              convertionUnixEnHeure(json.current.time),
-                    temperature:        Math.round(json.current.temperature_2m),
-                    vitesse_vent:       json.current.wind_speed_10m,
-                    cycle:              json.current.is_day,
-                    wmoCode:            json.current.weather_code,
-                    humidite:           json.current.relative_humidity_2m,
-                    precipitation:      json.current.precipitation,
-                });
-            })
-            .catch(error => reject(error));
-    });
+export async function getCurrentWeather(lat, lon) {
+    try {
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,weather_code,wind_speed_10m&timeformat=unixtime`);
+        const json = await response.json();
+
+        const weatherIcon = await getWeatherIcon(json.current.weather_code);
+
+        return {
+            taille:             json.current.weather_code,
+            heure:              convertionUnixEnHeure(json.current.time),
+            temperature:        Math.round(json.current.temperature_2m),
+            vitesse_vent:       json.current.wind_speed_10m,
+            cycle:              json.current.is_day,
+            icon:               weatherIcon.image,
+            desc:               weatherIcon.desc,
+            humidite:           json.current.relative_humidity_2m,
+            precipitation:      json.current.precipitation
+        };
+    } catch (error) {
+        throw error;
+    }
 }
 
 export function getWeekWeather(lat,lon) {

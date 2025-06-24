@@ -1,21 +1,23 @@
-export async function ConstructElement7VillesCapital(villes) {
+export async function ConstructElement7VillesCapital(infoville, meteo) {
     const a = document.createElement("a");
-    let meteoSituation = await getWeatherIcon(dataWeather.wmoCode);
-    a.innerHTML =
-        `<a href="#" className="col my-2 p-0 mx-1 text-decoration-none">
-            <div className="card d-flex flex-column h-100 p-2 ps-3 border-0 rounded-4">
-                <div className="fs-5">${villes.name} <span className="fw-bold">(${villes.country})</span></div>
-                <div className="row">
-                    <div className="col-4">
-                        <img src="${meteoSituation.image}" alt="Condition météo"/>
-                    </div>
-                    <div className="col-8">
-                        <div className="fs-1 fw-bold">${dataWeather.temperature}°C</div>
-                        <div className="fs-6">${meteoSituation.desc}</div>
-                    </div>
+    a.href = "#";
+    a.className = "col my-2 p-0 mx-1 text-decoration-none";
+
+    a.innerHTML = `
+        <div class="card d-flex flex-column h-100 p-2 ps-3 border-0 rounded-4">
+            <div class="fs-5">${infoville.name} <span class="fw-bold">(${infoville.country})</span></div>
+            <div class="row">
+                <div class="col-4">
+                    <img src="${meteo.icon}" alt="Condition météo"/>
+                </div>
+                <div class="col-8">
+                    <div class="fs-1 fw-bold">${meteo.temperature}°C</div>
+                    <div class="fs-6">${meteo.desc}</div>
                 </div>
             </div>
-        </a>`;
+        </div>
+    `;
+    return a;
 }
 
 export function ConstructElement7VillesCapitalError(villeName) {
@@ -27,5 +29,28 @@ export function ConstructElement7VillesCapitalError(villeName) {
                 <div class="fs-6">Erreur de récupération des données.</div>
             </div>
         </div>`;
+    return div;
+}
+
+export async function ConstructElementMeteoActuelle(ville, meteo) {
+    const div = document.createElement("div");
+    div.className = "col-12 bg-white rounded-start-4";
+    div.innerHTML = `
+        <div class="row p-3">
+            <div class="col-6 ">
+                <div class="col fs-1 fw-bold">
+                    ${ville.name}
+                </div>
+                <div class="fs-6">ven 11 fév. 2025, 11:11</div>
+                <img style="height: 150px;" src="${meteo.icon}" alt="Icône météo"><span class="fs-1 fw-bold">${meteo.temperature}°C</span>
+            </div>
+            <div class="col-6 mt-2 pe-5">
+                <div class="text-end">
+                    <div>${meteo.desc}</div>
+                    <div>Humidité: ${meteo.humidite} %</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
