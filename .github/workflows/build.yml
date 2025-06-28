@@ -8,10 +8,6 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
-      - name: Inject API Key
-        run: |
-          echo "export const CONFIG = { OPENWEATHERMAP_API_KEY: '${{ secrets.OPENWEATHERMAP_API_KEY }}' };" > assets/script/api/config.js
-
       - name: List files
         run: ls -R assets/script/api
 

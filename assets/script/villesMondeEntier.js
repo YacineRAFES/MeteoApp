@@ -9,9 +9,9 @@ export async function villesMondeEntierMeteo() {
         try {
             const dataVille = await ville(villeName);
             const dataWeather = await getCurrentWeather(dataVille.lat, dataVille.lon);
-            return ConstructElement7VillesCapital(dataVille, dataWeather);
+            return await ConstructElement7VillesCapital(dataVille, dataWeather);
         } catch (error) {
-            return ConstructElement7VillesCapitalError(dataWeather);
+            return await ConstructElement7VillesCapitalError(dataWeather);
         }
     })
 
