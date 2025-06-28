@@ -6,9 +6,8 @@ export async function getWeatherIcon(wmoCode){
 
         const json = await response.json();
 
-        console.log(wmoCode);
         const imageurl = json[wmocode].day.image;
-        console.log("getWeatherIcon"+imageurl);
+
         const description = json[wmocode].day.description;
 
         return {image: imageurl, desc: description};

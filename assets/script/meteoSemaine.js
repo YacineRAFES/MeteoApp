@@ -10,14 +10,20 @@ export async function meteoSemaine() {
     let dataVille = null;
 
     try {
-        if(villeName) {
+        if (villeName) {
             dataVille = await ville(villeName);
-        }else if(await navigator.geolocation){
-            dataVille = await geolocalisation();
+        } else if (navigator.geolocation) {
+            try {
+                dataVille = await geolocalisation();
+            } catch (geoError) {
+                console.warn("Accès à la géolocalisation refusé.");
+            }
+        }else{
+            console.log("Aucune ville sélectionnée ou géolocalisation refusée.");
         }
 
         const dataWeather = await getWeekWeather(dataVille.lat, dataVille.lon);
-        return ConstructElementMeteoSemaine(dataVille, dataWeather);
+        return ConstructElementMeteoSemaine(dataWeather);
     } catch (error) {
         console.error("Erreur lors de la récupération des données météo de la semaine." + error.message);
     }

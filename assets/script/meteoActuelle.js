@@ -18,12 +18,9 @@ export async function meteoActuelle() {
             } catch (geoError) {
                 console.warn("Accès à la géolocalisation refusé.");
             }
+        }else{
+            console.log("Aucune ville sélectionnée ou géolocalisation refusée.");
         }
-
-        if (!dataVille) {
-            throw new Error("Aucune ville sélectionnée ou géolocalisation refusée.");
-        }
-
         const dataWeather = await getCurrentWeather(dataVille.lat, dataVille.lon);
         return ConstructElementMeteoActuelle(dataVille, dataWeather);
     } catch (error) {

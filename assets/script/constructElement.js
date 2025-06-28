@@ -66,32 +66,33 @@ export async function ConstructElementMeteoJournee(meteoJournee) {
     //Vide le contenu
     meteoJourneeDiv.innerHTML = '';
     for (let i = 0; i < meteoJournee.wmoCode.length; i++) {
-        const meteoJourneeSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
         const div = document.createElement("div");
+        const meteoJourneeSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
         div.className = "col-2";
         div.innerHTML += `
             <div class="card text-center border-0">
                 <div class="card-body">
                     <h3 class="card-title text-center">${meteoJournee.heure[i]}</h3>
-                    <img src="${meteoJourneeSituation.imageurl}" class="card-img-top" alt="${ meteoJourneeSituation.desc }">
+                    <img src="${meteoJourneeSituation.image}" class="card-img-top" alt="${ meteoJourneeSituation.desc }">
                     <p class="card-text text-center fw-bold fs-4">${meteoJournee.temperature[i]}°C</p>
                     <p class="card-text text-center"><i class="bi bi-droplet"></i> ${meteoJournee.precipitation[i]}%</p>
                 </div>
             </div>
         `;
+
+        meteoJourneeDiv.appendChild(div);
     }
     meteoJourneeDiv.classList.remove("blocParDefaut");
     meteoJourneeDiv.classList.remove("bg-light");
     meteoJourneeDiv.classList.add("bg-white");
     // Ajoute le div crée dans meteoActuelle
-    meteoJourneeDiv.appendChild(div);
 }
 
 export async function ConstructElementMeteoSemaine(meteoSemaine) {
     const meteoSemaineDiv = document.getElementById('meteoSemaine');
     meteoSemaineDiv.innerHTML = '';
-    const div = document.createElement("div");
     for(let i = 0; i < meteoSemaine.wmoCode.length; i++){
+        const div = document.createElement("div");
         const meteoSemaineSituation = await getWeatherIcon(meteoSemaine.wmoCode[i]);
         div.className = "my-2 p-0";
         div.innerHTML +=`
@@ -99,14 +100,15 @@ export async function ConstructElementMeteoSemaine(meteoSemaine) {
                 <div class="card-body p-0 row text-center d-flex align-items-center">
                     <div class="col-3 p-0"><h3> ${ meteoSemaine.date[i] } </h3></div>
                     <div class="col-3 p-0"><i class="bi bi-droplet"></i> ${ meteoSemaine.precipitation_max[i] } %</div>
-                    <div class="col-3 p-0"><img src=" ${ meteoSemaineSituation.imageurl } " alt="${ meteoSemaineSituation.desc }"></div>
+                    <div class="col-3 p-0"><img src=" ${ meteoSemaineSituation.image } " alt="${ meteoSemaineSituation.desc }"></div>
                     <div class="col-3 p-0 fw-bold fs-4"> ${ meteoSemaine.temperature_min[i] }° / ${ meteoSemaine.temperature_max[i] }°</div>
                 </div>
             </div>`;
+
+        meteoSemaineDiv.appendChild(div);
     }
     meteoSemaineDiv.classList.remove("blocParDefaut");
     meteoSemaineDiv.classList.remove("bg-light");
     meteoSemaineDiv.classList.remove("shadow-lg");
-    meteoSemaineDiv.appendChild(div);
 }
 

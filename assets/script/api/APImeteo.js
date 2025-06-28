@@ -5,7 +5,6 @@ export async function getCurrentWeather(lat, lon) {
     try {
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,weather_code,wind_speed_10m&timeformat=unixtime`);
         const json = await response.json();
-        console.log("getCurrentWeather"+json);
 
         const weatherIcon = await getWeatherIcon(json.current.weather_code);
 
@@ -45,8 +44,8 @@ export async function getWeekWeather(lat,lon) {
 
 export async function getHourlyWeather(lat,lon) {
     try {
-        const response = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weather_code&timeformat=unixtime&temporal_resolution=native&forecast_hours=16`);
-        const json = response.json();
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weather_code&timeformat=unixtime&temporal_resolution=native&forecast_hours=16`);
+        const json = await response.json();
 
         return {
             heure:              json.hourly.time.map(time => convertionUnixEnHeure(time)),

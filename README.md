@@ -10,7 +10,15 @@ MeteoApp est une application météo simple qui vous permet de consulter les pr�
 
 ## Mise à jour ##
 
-** 14/03/2025 ** : 
+### 28/06/2025
+- MISE A JOUR :
+    * Suppression de cartographie.
+    * Grosse modification des fichiers en les rendant plus maintenable.
+
+- PROCHAIN MISE A JOUR :
+    * En pleine de réflexion de mettre de nouvelle fonctionnalité :
+      * Une page concernant sur la différence des températures avant et après.
+### 14/03/2025 : 
 - MISE A JOUR : 
     * Ajout le prévision météo actuelle de votre ville.
         * Nom de la ville, le condition, l'humidité, icône.

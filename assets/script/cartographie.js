@@ -1,5 +1,4 @@
 // This function initializes a Leaflet map with OpenStreetMap and OpenWeatherMap layers
-import { CONFIG } from "./api/config.js";
 
 export function cartographie(lon, lat) {
     return new Promise((resolve, reject) => {
