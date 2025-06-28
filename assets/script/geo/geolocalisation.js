@@ -1,7 +1,7 @@
 export function geolocalisation() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            reject(new Error("La géolocalisation n'est pas supportée par votre navigateur."));
+            console.log("La géolocalisation n'est pas supportée par votre navigateur.");
             return;
         }
 
