@@ -11,6 +11,7 @@ export async function getCurrentWeather(lat, lon) {
         return {
             taille:             json.current.weather_code,
             heure:              convertionUnixEnHeure(json.current.time),
+            unixtime:           json.current.time,
             temperature:        Math.round(json.current.temperature_2m),
             vitesse_vent:       json.current.wind_speed_10m,
             cycle:              json.current.is_day,

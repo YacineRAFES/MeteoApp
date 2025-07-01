@@ -26,5 +26,13 @@ export function convertionUnixEnDate(unixdate){
     return jourSemaine;
 }
 
+export function convertionUnixEnJourEtHeure(unixtime){
+    let date = new Date(unixtime * 1000);
+    return Intl.DateTimeFormat("fr-FR", {
+        dateStyle: "full",
+        timeStyle: "long",
+    }).format(date);
+}
+
 
 

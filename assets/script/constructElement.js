@@ -1,4 +1,5 @@
 import {getWeatherIcon} from "./utilitaire/weatherData.js";
+import {convertionUnixEnJourEtHeure} from "./utilitaire/convertion.js";
 
 export async function ConstructElement7VillesCapital(infoville, meteo) {
     const a = document.createElement("a");
@@ -46,7 +47,7 @@ export async function ConstructElementMeteoActuelle(ville, meteoActuelle) {
                 <div class="col fs-1 fw-bold">
                     ${ville.name}
                 </div>
-                <div class="fs-6">ven 11 fév. 2025, 11:11</div>
+                <div class="fs-6">${convertionUnixEnJourEtHeure(meteoActuelle.unixtime)}</div>
                 <img style="height: 150px;" src="${meteoActuelle.icon}" alt="${ meteoActuelle.desc }"><span class="fs-1 fw-bold">${meteoActuelle.temperature}°C</span>
             </div>
             <div class="col-6 mt-2 pe-5">
