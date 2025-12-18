@@ -45,7 +45,7 @@ export async function getWeekWeather(lat,lon) {
 
 export async function getHourlyWeather(lat,lon) {
     try {
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weather_code&timeformat=unixtime&temporal_resolution=native&forecast_hours=16`);
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weather_code&forecast_days=1&timeformat=unixtime&forecast_hours=24&temporal_resolution=hourly_3`);
         const json = await response.json();
 
         return {
