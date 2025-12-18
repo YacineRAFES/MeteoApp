@@ -88,7 +88,6 @@ export async function ConstructElementMeteoJournee(meteoJournee) {
     meteoJourneeDiv.classList.remove("blocParDefaut");
     meteoJourneeDiv.classList.remove("bg-light");
     meteoJourneeDiv.classList.add("bg-white");
-    // Ajoute le div crée dans meteoActuelle
 }
 
 export async function ConstructElementMeteoSemaine(meteoSemaine) {
