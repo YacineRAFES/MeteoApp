@@ -37,30 +37,30 @@ export function ConstructElement7VillesCapitalError(villeName) {
 
 export async function ConstructElementMeteoActuelle(ville, meteoActuelle) {
     const meteoActuelleDiv = document.getElementById('meteoActuelle');
-    //Vide le contenu
     meteoActuelleDiv.innerHTML = '';
     const div = document.createElement("div");
     div.className = "col-12 bg-white rounded-start-4";
     div.innerHTML = `
         <div class="row p-3">
-            <div class="col-6 ">
-                <div class="col fs-1 fw-bold">
+            <div class="col-12 col-md-6">
+                <div class="col fw-bold meteo-ville-nom">
                     ${ville.name}
                 </div>
                 <div class="fs-6">${convertionUnixEnJourEtHeure(meteoActuelle.unixtime)}</div>
-                <img style="height: 150px;" src="${meteoActuelle.icon}" alt="${ meteoActuelle.desc }"><span class="fs-1 fw-bold">${meteoActuelle.temperature}°C</span>
+                <img class="meteo-icone-actuelle" src="${meteoActuelle.icon}" alt="${meteoActuelle.desc}">
+                <span class="fw-bold meteo-temp-actuelle">${meteoActuelle.temperature}°C</span>
             </div>
-            <div class="col-6 mt-2 pe-5">
-                <div class="text-end">
+            <div class="col-12 col-md-6 mt-2 pe-md-5">
+                <div class="text-md-end">
                     <div>${meteoActuelle.desc}</div>
                     <div>Humidité: ${meteoActuelle.humidite} %</div>
                 </div>
             </div>
         </div>
     `;
-    // Ajoute le div crée dans meteoActuelle
     meteoActuelleDiv.appendChild(div);
 }
+
 
 export async function ConstructElementMeteoJournee(meteoJournee) {
     const meteoJourneeDiv = document.getElementById('meteoJournee');
@@ -71,7 +71,7 @@ export async function ConstructElementMeteoJournee(meteoJournee) {
         div.className = "col-2";
 
         const meteoJourneeSituation = await getWeatherIcon(meteoJournee.wmoCode[i]);
-        
+
         div.innerHTML += `
             <div class="card text-center border-0">
                 <div class="card-body">
