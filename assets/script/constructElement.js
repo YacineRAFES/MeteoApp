@@ -4,7 +4,7 @@ import {convertionUnixEnJourEtHeure} from "./utilitaire/convertion.js";
 export async function ConstructElement7VillesCapital(infoville, meteo) {
     const a = document.createElement("a");
     a.href = "#";
-    a.className = "col my-2 p-0 mx-1 text-decoration-none";
+    a.className = "col-12 col-md my-2 p-0 text-decoration-none mx-md-1";
 
     a.innerHTML = `
         <div class="card d-flex flex-column h-100 p-2 ps-3 border-0 rounded-4">
